@@ -1,0 +1,330 @@
+#=============================================
+# (c) GTK-MUI Team 2006
+#
+# $Id: Makefile.AROS,v 1.27 2013/07/18 13:55:07 mmartinka Exp $
+#
+# for aros adapted morphos makefile
+#=============================================
+
+PATH := /home/oli/svn/aros/bin/linux-i386/tools:${PATH}
+
+CC     = i386-aros-gcc
+#RANLIB = 
+AR     = i386-aros-ar
+LD     = i386-aros-ld
+
+# Copy examples exes to TARGETDIR
+TARGETDIR=aros
+
+#INCLUDES=-I/usr/local/amiga/i686-aros/include/glib-2.0/glib -I/usr/local/amiga/i686-aros/include/glib-2.0 -I/usr/local/amiga/i686-aros/lib/glib-2.0/include -Igtk -I. -Iclasses
+#INCLUDES=-I/usr/local/amiga/i686-aros/sys-include/glib-2.0/glib -I/usr/local/amiga/i686-aros/sys-include/glib-2.0 -I/usr/local/amiga/i686-aros/lib/glib-2.0/include -I/usr/local/aros -Igtk -I. -Iclasses
+INCLUDES=-I/usr/local/aros/include -Igtk -I. -Iclasses
+
+#FLAGS   = -O3 -Wall
+FLAGS   = -O2 -Wall
+#CDEFS   = 
+# ============== DEBUG OFF ============== 
+DEBUGFLAGS = 
+# ============== DEBUG ON ============== 
+#DEBUGFLAGS = -g -DMGTK_DEBUG
+#DEBUGFLAGS = -g
+
+CFLAGS = $(CDEFS) $(DEBUGFLAGS) $(FLAGS) $(INCLUDES)
+
+# dependency checks
+DEPINCLUDES = $(INCLUDES)
+DEPFILE     = .depend.aros
+DEPOPTS     =
+
+STATICLIBS = -L/usr/local/aros/lib -lgtk-mui -lgobject-2.0 -lglib-2.0 -liconv -lmui -larossupport -lamiga -larosc  -larosm
+
+include makefile.objs
+
+ECHO = echo
+ECHE = echo -e
+BOLD = 
+NRML = 
+
+COMPILING = @$(ECHE) "compiling $(BOLD)$@$(NRML)..."
+LINKING = @$(ECHE) "linking $(BOLD)$@$(NRML)..."
+STRIPPING = @$(ECHE) "stripping $(BOLD)$@$(NRML)..."
+ARCHIVING = @$(ECHE) "archiving $(BOLD)$@$(NRML)..."
+
+
+%.o: %.c
+	$(COMPILING)
+	$(CC) $(CFLAGS) -o $@ -c $*.c
+
+#and remove version.h for the next build
+all: libgtk-mui.a
+	@rm version.h
+
+
+classes/rootgroup.o: classes/classes.h
+classes/table.o: classes/classes.h
+
+# not really nice, but working ;)
+# generate version.h for every build
+version.h: 
+	@echo '#define LIB_DATE      "'`date +%d.%m.%Y`'"'                                 >version.h
+	@echo '#define LIB_CPU       "[AROS/x86]"'                                        >>version.h
+	@echo '#define LIB_VER       "2.1.0"'                                             >>version.h
+	@echo '#define LIB_COPYRIGHT "(C) 2010 Oliver Brunner (released under the LGPL)"' >>version.h
+
+version.o: version.h
+	$(CC) $(CFLAGS) -o $@ -c $*.c
+
+gtk_init.o: version.h
+	$(CC) $(CFLAGS) -o $@ -c $*.c
+ 
+libgtk-mui.a: $(OBJS) version.o
+	$(ARCHIVING)
+	$(AR) rc libgtk-mui.a $(OBJS) version.o
+  
+clean: 
+	rm -f $(OBJS) *.a
+
+ex-clean:
+	rm -f examples/*.o examples/arrow examples/entry examples/filesel examples/frame examples/menu examples/radiobuttons examples/rangewidgets examples/table examples/tooltips examples/spinbutton examples/notebook examples/progressbar examples/fixed examples/buttons examples/toolbar examples/ttt_test examples/draw_point examples/*.o
+
+#an AROS aware makedepend would be needed here.. so not working ATM
+depend:
+	@echo "generating dependencies (takes about a minute)"
+	@makedepend -f $(DEPFILE) $(DEPOPTS) $(DEPINCLUDES) $(patsubst %.o,%.c, $(OBJS))
+	@touch .depend.check
+
+#=================================================================
+# real makefile ends here. The following is just for me to test 
+# a lot of stuff and maybe also for you, as an example ;)
+#=================================================================
+etest: entry
+	cp examples/entry $(TARGETDIR)
+
+#fails
+stest: spinbutton
+	cp examples/spinbutton $(TARGETDIR)
+
+btest: buttons
+	cp examples/buttons $(TARGETDIR)
+
+eurotest: eurocalc
+	cp examples/eurocalc/eurocalc $(TARGETDIR)
+
+rtest: radiobuttons
+	cp examples/radiobuttons $(TARGETDIR)
+
+#skipped
+timetest: timer
+	cp examples/timer $(TARGETDIR)
+
+ltest: list
+	cp examples/list $(TARGETDIR)/gtklist
+
+ttest: table
+	cp examples/table $(TARGETDIR)
+
+t2test: table2
+	cp examples/table2 $(TARGETDIR)
+
+t3test: table3
+	cp examples/table3 $(TARGETDIR)
+
+t4test: table4
+	cp examples/table4 $(TARGETDIR)
+
+#fails (missing: option menu)
+ratest: rangewidgets
+	cp examples/rangewidgets $(TARGETDIR)
+
+ctest: combo
+	cp examples/combo $(TARGETDIR)
+
+ftest: frame
+	cp examples/frame $(TARGETDIR)
+
+f2test: frame2
+	cp examples/frame2 $(TARGETDIR)
+
+botest: boxes
+	cp examples/boxes $(TARGETDIR)
+
+# does not quit
+fitest: filesel
+	cp examples/filesel $(TARGETDIR)
+
+fxtest: fixed
+	cp examples/fixed $(TARGETDIR)
+
+atest: arrow
+	cp examples/arrow $(TARGETDIR)
+
+2btest: 2buttons
+	cp examples/2buttons $(TARGETDIR)
+
+2wtest: 2windows
+	cp examples/2windows $(TARGETDIR)
+
+
+ahtest: addharddrives
+	cp examples/addharddrives $(TARGETDIR)
+
+latest: label
+	cp examples/label $(TARGETDIR)
+
+ptest: progressbar
+	cp examples/progressbar $(TARGETDIR)
+
+cltest: clist
+	cp examples/clist $(TARGETDIR)
+
+sctest: scrolledwin
+	cp examples/scrolledwin $(TARGETDIR)
+
+ntest: notebook
+	cp examples/notebook $(TARGETDIR)
+
+tooltest: tooltips
+	cp examples/tooltips $(TARGETDIR)
+
+menutest: menu
+	cp examples/menu $(TARGETDIR)
+
+sbtest: statusbar
+	cp examples/example_statusbar $(TARGETDIR)/statusbar
+
+dptest: drawpoint
+	cp examples/draw_point $(TARGETDIR)
+	
+# visual NULL
+dialtest: dial
+	cp examples/dial_test $(TARGETDIR)
+
+gpasstest: gpass
+	cp examples/gpassutil/gpass $(TARGETDIR)
+
+
+
+#test: arrow radiobuttons buttons entry fixed frame
+#	cp examples/arrow examples/radiobuttons examples/buttons examples/entry examples/fixed examples/frame $(TARGETDIR)
+
+#test: examples
+#	cp examples/arrow examples/entry examples/filesel examples/frame examples/menu examples/radiobuttons examples/rangewidgets examples/table examples/tooltips examples/spinbutton examples/notebook examples/progressbar examples/fixed examples/ttt_test examples/buttons examples/toolbar examples/gpassutil/gpass examples/eurocalc/eurocalc examples/*.png examples/eurocalc/*.png examples/dial_test $(TARGETDIR)
+
+examples: libgtk-mui.a arrow entry filesel frame menu radiobuttons rangewidgets table tooltips spinbutton notebook progressbar fixed tictactoe buttons toolbar gpass eurocalc dial draw_point
+
+arrow: examples/arrow.c
+	$(CC) $(CFLAGS) examples/arrow.c -o examples/arrow -L. $(STATICLIBS)
+
+2buttons: examples/2buttons.c
+	$(CC) $(CFLAGS) examples/2buttons.c -o examples/2buttons -L. $(STATICLIBS)
+
+2windows: examples/2windows.c
+	$(CC) $(CFLAGS) examples/2windows.c -o examples/2windows -L. $(STATICLIBS)
+
+addharddrives: examples/addharddrives.c
+	$(CC) $(CFLAGS) -DGTKMUI examples/addharddrives.c -o examples/addharddrives -L. $(STATICLIBS)
+
+
+label: examples/label.c
+	$(CC) $(CFLAGS) examples/label.c -o examples/label -L. $(STATICLIBS)
+
+entry: examples/entry.c
+	$(CC) $(CFLAGS) examples/entry.c -o examples/entry -L. $(STATICLIBS)
+
+helloworld: examples/helloworld.c
+	$(CC) $(CFLAGS) examples/helloworld.c -o examples/helloworld -L. $(STATICLIBS)
+
+
+filesel: examples/filesel.c
+	$(CC) $(CFLAGS) examples/filesel.c -o examples/filesel -L. $(STATICLIBS)
+
+frame: examples/frame.c
+	$(CC) $(CFLAGS) examples/frame.c -o examples/frame -L. $(STATICLIBS)
+
+frame2: examples/frame2.c
+	$(CC) $(CFLAGS) examples/frame2.c -o examples/frame2 -L. $(STATICLIBS)
+
+boxes: examples/boxes.c
+	$(CC) $(CFLAGS) examples/boxes.c -o examples/boxes -L. $(STATICLIBS)
+
+menu: examples/menu.c
+	$(CC) $(CFLAGS) examples/menu.c -o examples/menu -L. $(STATICLIBS)
+
+radiobuttons: examples/radiobuttons.c
+	$(CC) $(CFLAGS) examples/radiobuttons.c -o examples/radiobuttons -L. $(STATICLIBS)
+
+timer: examples/timer.c
+	$(CC) $(CFLAGS) examples/timer.c -o examples/timer -L. $(STATICLIBS)
+
+rangewidgets: examples/rangewidgets.c
+	$(CC) $(CFLAGS) examples/rangewidgets.c -o examples/rangewidgets -L. $(STATICLIBS)
+
+table: examples/table.c
+	$(CC) $(CFLAGS) examples/table.c -o examples/table -L. $(STATICLIBS)
+
+table2: examples/table2.c
+	$(CC) $(CFLAGS) examples/table2.c -o examples/table2 -L. $(STATICLIBS)
+
+table3: examples/table3.c
+	$(CC) $(CFLAGS) examples/table3.c -o examples/table3 -L. $(STATICLIBS)
+
+table4: examples/table4.c
+	$(CC) $(CFLAGS) examples/table4.c -o examples/table4 -L. $(STATICLIBS)
+
+tooltips: examples/tooltips.c
+	$(CC) $(CFLAGS) examples/tooltips.c -o examples/tooltips -L. $(STATICLIBS)
+
+spinbutton: examples/spinbutton.c
+	$(CC) $(CFLAGS) examples/spinbutton.c -o examples/spinbutton -L. $(STATICLIBS)
+
+notebook: examples/notebook.c
+	$(CC) $(CFLAGS) examples/notebook.c -o examples/notebook -L. $(STATICLIBS)
+
+progressbar: examples/progressbar.c
+	$(CC) $(CFLAGS) examples/progressbar.c -o examples/progressbar -L. $(STATICLIBS)
+
+fixed: examples/fixed.c
+	$(CC) $(CFLAGS) examples/fixed.c -o examples/fixed -L. $(STATICLIBS)
+
+buttons: examples/buttons.c
+	$(CC) $(CFLAGS) examples/buttons.c -o examples/buttons -L. $(STATICLIBS)
+
+toolbar: examples/toolbar.c
+	$(CC) $(CFLAGS) examples/toolbar.c -o examples/toolbar -L. $(STATICLIBS)
+
+list: examples/list.c
+	$(CC) $(CFLAGS) examples/list.c -o examples/list -L. $(STATICLIBS)
+
+combo: examples/combo.c
+	$(CC) $(CFLAGS) examples/combo.c -o examples/combo -L. $(STATICLIBS)
+
+scrolledwin: examples/scrolledwin.c
+	$(CC) $(CFLAGS) examples/scrolledwin.c -o examples/scrolledwin -L. $(STATICLIBS)
+
+clist: examples/clist.c
+	$(CC) $(CFLAGS) examples/clist.c -o examples/clist -L. $(STATICLIBS)
+
+statusbar: examples/example_statusbar.c
+	$(CC) $(CFLAGS) examples/example_statusbar.c -o examples/example_statusbar -L. $(STATICLIBS)
+
+drawpoint: examples/draw_point.c
+	$(CC) $(CFLAGS) examples/draw_point.c -o examples/draw_point -L. $(STATICLIBS)
+
+
+tictactoe: examples/tictactoe.c examples/tictactoe.h examples/ttt_test.c
+	$(CC) examples/tictactoe.c $(CFLAGS)  -c -o examples/tictactoe.o 
+	$(CC) examples/ttt_test.c $(CFLAGS) -c -o examples/ttt_test.o
+	$(CC) examples/ttt_test.o examples/tictactoe.o -o examples/ttt_test -L. $(STATICLIBS)
+
+dial: libgtk-mui.a examples/dial_test.c examples/gtkdial.c examples/gtkdial.h
+	$(CC) examples/dial_test.c $(CFLAGS)  -c -o examples/dial_test.o 
+	$(CC) examples/gtkdial.c $(CFLAGS)  -c -o examples/gtkdial.o 
+	$(CC) examples/dial_test.o examples/gtkdial.o -o examples/dial_test -L. $(STATICLIBS)
+
+gpass: libgtk-mui.a
+	(cd examples/gpassutil;make)
+
+eurocalc: libgtk-mui.a
+	(cd examples/eurocalc;make)
+ 
+ 

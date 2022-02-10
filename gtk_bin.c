@@ -1,0 +1,203 @@
+/* GTK - The GIMP Toolkit
+ * Copyright (C) 1995-1997 Peter Mattis, Spencer Kimball and Josh MacDonald
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the
+ * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+ * Boston, MA 02111-1307, USA.
+ */
+
+/*
+ * Modified by the GTK+ Team and others 1997-2000.  See the AUTHORS
+ * file for a list of people on the GTK+ Team.  See the ChangeLog
+ * files for a list of changes.  These files are distributed with
+ * GTK+ at ftp://ftp.gtk.org/pub/gtk/. 
+ */
+
+/*
+ * Modified by the GTK-MUI Team 2006
+ *
+ * $Id: gtk_bin.c,v 1.6 2007/10/25 15:22:19 o1i Exp $
+ */
+
+#include <gtk/gtk.h>
+#include <gtk/gtkbin.h>
+#include "debug.h"
+
+
+static void gtk_bin_class_init  (GtkBinClass    *klass);
+static void gtk_bin_init        (GtkBin         *bin);
+static void gtk_bin_add         (GtkContainer   *container,
+			         GtkWidget      *widget);
+static void gtk_bin_remove      (GtkContainer   *container,
+			         GtkWidget      *widget);
+static void gtk_bin_forall      (GtkContainer   *container,
+				 gboolean	include_internals,
+				 GtkCallback     callback,
+				 gpointer        callback_data);
+static GType gtk_bin_child_type (GtkContainer   *container);
+
+
+static GtkContainerClass *parent_class = NULL;
+
+
+GType gtk_bin_get_type (void) {
+
+  static GType bin_type = 0;
+
+  if (!bin_type) {
+      static const GTypeInfo bin_info = {
+        sizeof (GtkBinClass),
+        NULL,		/* base_init */
+        NULL,		/* base_finalize */
+        (GClassInitFunc) gtk_bin_class_init,
+        NULL,		/* class_finalize */
+        NULL,		/* class_data */
+        sizeof (GtkBin),
+        0,		/* n_preallocs */
+        (GInstanceInitFunc) gtk_bin_init,
+        NULL,		/* value_table */
+      };
+
+      bin_type = g_type_register_static (GTK_TYPE_CONTAINER, "GtkBin", 
+					 &bin_info, G_TYPE_FLAG_ABSTRACT);
+    }
+
+  return bin_type;
+}
+
+static void gtk_bin_class_init (GtkBinClass *class) {
+
+  GtkContainerClass *container_class;
+
+  DebOut("gtk_bin_class_init(%lx)\n",class);
+
+  container_class = (GtkContainerClass*) class;
+
+  parent_class = g_type_class_peek_parent (class);
+
+  container_class->add = gtk_bin_add;
+  container_class->remove = gtk_bin_remove;
+  container_class->forall = gtk_bin_forall;
+  container_class->child_type = gtk_bin_child_type;
+}
+
+static void gtk_bin_init (GtkBin *bin) {
+
+#warning TODO: enable GTK_WIDGET_SET_FLAGS again
+#if 0
+  GTK_WIDGET_SET_FLAGS (bin, GTK_NO_WINDOW);
+#endif
+
+  DebOut("gtk_bin_init(%lx)\n",bin);
+
+  bin->child = NULL;
+
+  GTK_MUI(bin)->mainclass=CL_OTHER;
+}
+
+
+static GType gtk_bin_child_type (GtkContainer *container) {
+
+  if (!GTK_BIN (container)->child)
+    return GTK_TYPE_WIDGET;
+  else
+    return G_TYPE_NONE;
+}
+
+static void gtk_bin_add (GtkContainer *container, GtkWidget    *child) {
+
+  GtkBin *bin = GTK_BIN (container);
+
+  DebOut("gtk_bin_add(%lx,%lx)\n",container,child);
+
+  g_return_if_fail (GTK_IS_WIDGET (child));
+
+  if (bin->child != NULL)
+    {
+      g_warning ("Attempting to add a widget with type %s to a %s, "
+                 "but as a GtkBin subclass a %s can only contain one widget at a time; "
+                 "it already contains a widget of type %s",
+                 g_type_name (G_OBJECT_TYPE (child)),
+                 g_type_name (G_OBJECT_TYPE (bin)),
+                 g_type_name (G_OBJECT_TYPE (bin)),
+                 g_type_name (G_OBJECT_TYPE (bin->child)));
+      return;
+    }
+
+#warning TODO: enabled gtk_widget_set_parent again
+  gtk_widget_set_parent (child, GTK_WIDGET (bin));
+  bin->child = child;
+
+  mgtk_add(GTK_MUI(container),GTK_MUI(child));
+}
+
+static void gtk_bin_remove (GtkContainer *container, GtkWidget    *child) {
+
+  GtkBin *bin = GTK_BIN (container);
+#if 0
+  gboolean widget_was_visible;
+#endif
+
+  g_return_if_fail (GTK_IS_WIDGET (child));
+  g_return_if_fail (bin->child == child);
+
+#warning TODO: enable GTK_WIDGET_VISIBLE again
+#if 0
+  widget_was_visible = GTK_WIDGET_VISIBLE (child);
+#endif
+  
+#warning TODO: enable gtk_widget_unparent again
+#if 0
+  gtk_widget_unparent (child);
+#endif
+  bin->child = NULL;
+  
+  /* queue resize regardless of GTK_WIDGET_VISIBLE (container),
+   * since that's what is needed by toplevels, which derive from GtkBin.
+   */
+#warning TODO: enable gtk_widget_queue_resize again
+#if 0
+  if (widget_was_visible)
+    gtk_widget_queue_resize (GTK_WIDGET (container));
+#endif
+}
+
+static void gtk_bin_forall (GtkContainer *container, gboolean      include_internals, GtkCallback   callback, gpointer      callback_data) {
+
+  GtkBin *bin = GTK_BIN (container);
+
+  g_return_if_fail (callback != NULL);
+
+  if (bin->child)
+    (* callback) (bin->child, callback_data);
+}
+
+/**
+ * gtk_bin_get_child:
+ * @bin: a #GtkBin
+ * 
+ * Gets the child of the #GtkBin, or %NULL if the bin contains
+ * no child widget. The returned widget does not have a reference
+ * added, so you do not need to unref it.
+ * 
+ * Return value: pointer to child of the #GtkBin
+ **/
+GtkWidget *gtk_bin_get_child (GtkBin *bin) {
+
+  g_return_val_if_fail (GTK_IS_BIN (bin), NULL);
+
+  return bin->child;
+}
+
+#define __GTK_BIN_C__

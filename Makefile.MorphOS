@@ -1,0 +1,75 @@
+# $Id: Makefile.MorphOS,v 1.22 2009/05/17 18:37:48 stefankl Exp $
+# ============== DEBUG OFF ==============
+#DEBUGFLAGS =
+# ============== DEBUG ON ==============
+ DEBUGFLAGS = -g -DMGTK_DEBUG
+CC = gcc -noixemul
+CDEFS = -DAROS_ALMOST_COMPATIBLE -DAMIGA_LIBRARY
+#CFLAGS = $(CDEFS) -O3 -Wall -Wno-pointer-sign -I. -Iinclude -Iclasses -Iusr:local/include/glib-2.0
+CFLAGS = $(CDEFS) $(DEBUGFLAGS) -O3 -Wall -Iinclude -Iclasses -Iusr:local/include/glib-2.0 -I.
+TARGET = libgtk-mui.a
+
+DEPINCLUDES = -I. -Igtk/ -Iclasses/ -Iusr:local/include/glib-2.0
+DEPFILE = .depend.morphos
+DEPOPTS = -noixemul
+COBJS_NODEP_DIRS = MorphOS/include
+
+include makefile.objs
+
+ECHO = echo
+ECHE = echo -e
+BOLD = \033[1m
+NRML = \033[22m
+
+COMPILING = @$(ECHE) "compiling $(BOLD)$@$(NRML)..."
+LINKING = @$(ECHE) "linking $(BOLD)$@$(NRML)..."
+STRIPPING = @$(ECHE) "stripping $(BOLD)$@$(NRML)..."
+ARCHIVING = @$(ECHE) "archiving $(BOLD)$@$(NRML)..."
+
+# not really nice, but working ;)
+# generate version.h for every build
+version.h:
+	@echo '#define LIB_DATE      "'`date +%d.%m.%Y`'"'                                 >version.h
+	@echo '#define LIB_CPU       "[MorphOS/PPC]"'                                        >>version.h
+	@echo '#define LIB_VER       "2.0.5"'                                             >>version.h
+	@echo '#define LIB_COPYRIGHT "(C) 2008 Oliver Brunner (released under the LGPL)"' >>version.h
+
+
+.PHONY: all
+ifeq ($(wildcard $(DEPFILE)),$(DEPFILE))
+# nope
+all: .depend.check $(TARGET)
+else
+# yes
+
+all: depend
+	@$(MAKE) --no-print-directory -f $(MAKEFILENAME) $(TARGET)
+endif
+
+.depend.check: makefile.objs
+	@$(MAKE) --no-print-directory -s -f Makefile.MorphOS depend
+
+.PHONY: depend
+depend:
+	@echo "generating dependencies (takes about a minute)"
+	@sh mkdep.sh -f $(DEPFILE) $(DEPOPTS) $(DEPINCLUDES) $(patsubst %.o,%.c, $(OBJS))
+	@touch .depend.check
+
+-include $(DEPFILE)
+
+%.o: %.c
+	$(COMPILING)
+	@$(CC) $(CFLAGS) -o $@ -c $*.c
+
+classes/%.o: classes/%.c
+	$(COMPILING)
+	@$(CC) $(CFLAGS) -o $@ -c $*.c
+
+$(TARGET): $(OBJS)
+	$(ARCHIVING)
+	@$(AR) rc $(TARGET) $(OBJS)
+
+clean: 
+	rm -f *.o classes/*.o gdk/*.o gdk/aros/*.o glib/*.o $(TARGET) *.a
+install: all
+	copy libgtk-mui.a to gg:usr/local/lib

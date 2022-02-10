@@ -1,0 +1,63 @@
+# $Id: Makefile.68k,v 1.5 2006/01/04 18:29:09 itix Exp $
+# for aos3.1 crosscompiling adapted morphos makefile
+
+CC     = m68k-amigaos-gcc -noixemul
+RANLIB = m68k-amigaos-ranlib
+AR     = m68k-amigaos-ar
+
+CDEFS =
+CFLAGS = $(CDEFS) -O3 -Wall -I. -Iinclude -Iclasses
+
+TARGET = entry
+
+include makefile.objs
+
+ECHO = echo
+ECHE = echo -e
+BOLD = 
+NRML = 
+
+COMPILING = @$(ECHE) "compiling $(BOLD)$@$(NRML)..."
+LINKING = @$(ECHE) "linking $(BOLD)$@$(NRML)..."
+STRIPPING = @$(ECHE) "stripping $(BOLD)$@$(NRML)..."
+ARCHIVING = @$(ECHE) "archiving $(BOLD)$@$(NRML)..."
+
+%.o: %.c
+	$(COMPILING)
+	@$(CC) $(CFLAGS) -o $@ -c $*.c
+
+all: $(TARGET)
+
+# we need some kind of autodep system
+
+classes/application.o	: classes/classes.h
+classes/button.o			: classes/classes.h
+classes/checkbutton.o	: classes/classes.h
+classes/custom.o			: classes/classes.h
+classes/entry.o			: classes/classes.h
+classes/fixed.o			: classes/classes.h
+classes/menu.o				: classes/classes.h
+classes/notebook.o		: classes/classes.h
+classes/progressbar.o	: classes/classes.h
+classes/radiobutton.o	: classes/classes.h
+classes/rootgroup.o		: classes/classes.h
+classes/spinbutton.o		: classes/classes.h
+classes/table.o			: classes/classes.h
+classes/togglebutton.o	: classes/classes.h
+classes/toolbar.o			: classes/classes.h
+
+classes/%.o: classes/%.c
+	$(COMPILING)
+	@$(CC) $(CFLAGS) -o $@ -c $*.c
+
+$(TARGET): $(TARGET).o libgtk-mui.a
+	$(LINKING)
+	@$(CC) $(OBJS) $(TARGET).o -o $(TARGET) -L. -lgtk-mui
+
+libgtk-mui.a: $(OBJS)
+	$(ARCHIVING)
+	@$(AR) rc libgtk-mui.a $(OBJS)
+	@$(RANLIB) libgtk-mui.a
+
+clean: 
+	rm -f *.o classes/*.o gdk/*.o glib/*.o $(TARGET) *.a

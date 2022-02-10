@@ -1,0 +1,117 @@
+OBJS   = debug.o \
+	gdk/aros/gdkcolor-fb.o \
+	gdk/aros/gdkvisual-fb.o \
+	gdk/gdk_window.o \
+	gdk/gdk_draw.o \
+	gdk/gdkvisual.o \
+	gdk/gdkcolor.o \
+	gdk/gdkgc.o \
+	gdk/gdkevents.o \
+	gdk/gdkkeys.o \
+	gdk/gdkkeynames.o \
+	gdk/gdkenumtypes.o \
+	gtk_init.o \
+	gtk_main.o \
+	gtk_typeutils.o \
+	gtk_typebuiltins.o \
+	gtk_settings.o \
+	gtk_marshallers.o \
+	gtk_bin.o \
+	gtk_scrolledwindow.o \
+	gtk_misc.o \
+	gtk_container.o \
+	gtk_widget.o \
+	gtk_tooltips.o \
+	gtk_adjustment.o \
+	gtk_globals.o \
+	gtk_window.o \
+	gtk_dialog.o \
+	gtk_filesel.o \
+	gtk_style.o \
+	gtk_box.o \
+	gtk_vbox.o \
+	gtk_hbox.o \
+	gtk_combo.o \
+	gtk_grab.o \
+	gtk_hooks.o \
+	gtk_button.o \
+	gtk_checkbutton.o \
+	gtk_togglebutton.o \
+	gtk_spinbutton.o \
+	gtk_table.o \
+	gtk_entry.o \
+	gtk_editable.o \
+	gtk_image.o \
+	gtk_label.o \
+	gtk_accelgroup.o \
+	gtk_accelmap.o \
+	gtk_accellabel.o \
+	gtk_radio.o \
+	gtk_separator.o \
+	gtk_hseparator.o \
+	gtk_range.o \
+	gtk_scale.o \
+	gtk_hscale.o \
+	gtk_vscale.o \
+	gtk_arrow.o \
+	gtk_frame.o \
+	gtk_notebook.o \
+	gtk_timer.o \
+	gtk_fixed.o \
+	gtk_paint.o \
+	gtk_list.o \
+	gtk_clist.o \
+	gtk_item.o \
+	gtk_listitem.o \
+	gtk_progress.o \
+	gtk_progressbar.o \
+	gtk_menubar.o \
+	gtk_menuitem.o \
+	gtk_menushell.o \
+	gtk_menu.o \
+	gtk_object.o \
+	gtk_signal.o \
+	gtk_custom.o \
+	gtk_statusbar.o \
+	gtk_drawingarea.o \
+	gtk_vseparator.o \
+	gtk-mui.o \
+	classes/application.o \
+	classes/rootgroup.o \
+	classes/hbox.o \
+	classes/vbox.o \
+	classes/group.o \
+	classes/custom.o \
+	classes/table.o \
+	classes/notebook.o \
+	classes/progressbar.o \
+	classes/fixed.o \
+	classes/button.o \
+	classes/checkbutton.o \
+	classes/togglebutton.o \
+	classes/radiobutton.o \
+	classes/spinbutton.o \
+	classes/menu.o \
+	classes/entry.o \
+	classes/toolbar.o \
+	classes/list.o \
+	classes/clist.o \
+	classes/combo.o \
+	classes/scale.o \
+	classes/label.o \
+	classes/frame.o \
+	classes/dialogwindow.o \
+	classes/window.o \
+	classes/scrolledwindow.o \
+	classes/classext.o
+
+
+OLD=gtk_handle_box.o \
+	gtk_toolbar.o \
+	gtk_scrollbar.o \
+  gtk_grab.o \
+  gtk_messagedialog.o 
+
+
+
+REM=	classes/timer.o 

@@ -1,0 +1,316 @@
+$Id: gtk-mui.notes,v 1.73 2007/03/18 14:08:39 itix Exp $
+
+2007-03-18 Ilkka Lehtoranta <ilkleht@isoveli.org>
+ * Makefile.MorphOS, debug.h, gtk/gtk.h: build fixes for MorphOS.
+
+2006-03-02 Ilkka Lehtoranta <ilkleht@isoveli.org>
+
+ * gtk_dialog.c: Corrected gtk_dialog_add_action_widget().
+ * gtk_messagedialog.c, Makefile.objs: Added GtkMessageDialog class. Implemented
+   functions are gtk_message_dialog_new(), gtk_message_dialog_new_with_markup() and
+   gtk_message_dialog_set_markup(). Please note Pango text is not really supported.
+
+2006-03-01 Ilkka Lehtoranta <ilkleht@isoveli.org>
+
+ * gtk_init.c, classes/label.c: New MUI custom class to take care of GtkLabel.
+ * gtk_label.c: Implemented gtk_label_new_with_mnemonic(), gtk_label_set_justify(),
+   gtk_label_get_justify(), gtk_label_get_ellipsize(), gtk_label_get_text(),
+   gtk_label_get_label(), gtk_label_set_text_with_mnemonic(), gtk_label_set_label(),
+   gtk_label_set_use_markup(), gtk_label_set_use_underline(),
+   gtk_label_get_mnemonic_keyval() and gtk_label_get_mnemonic_widget().
+   Added empty shells for gtk_label_set_max_width_chars(), gtk_label_get_max_width_chars(),
+   gtk_label_set_markup(), gtk_label_set_markup_with_mnemonic(), gtk_label_set_pattern(),
+   gtk_label_set_ellipsize(), gtk_label_set_width_chars(), gtk_label_set_line_wrap(),
+   gtk_label_get_layout_offsets(), gtk_label_get_mnemonic_keyval(), gtk_label_get_selectable(),
+   gtk_label_select_region(), gtk_label_set_mnemonic_widget(), gtk_label_set_selectable(),
+   gtk_label_get_attributes(), gtk_label_get_width_chars(), gtk_label_get_layout(),
+   gtk_label_get_selection_bounds(), gtk_get_single_line_mode(), gtk_label_get_angle(),
+   gtk_label_set_single_line_mode(), gtk_label_set_angle().
+
+2006-01-08 Ilkka Lehtoranta <ilkleht@isoveli.org>
+
+ * classes/messagewindow.c, gtk_messagedialog.c: Added base work for message
+   dialogs.
+ * gtk_window.c, gtk_dialog.c: reworked sources so they have sort of subclassing.
+   GtkDialog widget calls GtkWindow widget creator, GtkDialog widget is called by
+   GtkMessageDialog widget and so on. So GtkWindow widget initializes GtkWindow
+   part of GtkDialog structure and GtkDialog only its own part. Sort of mini-OO
+   with help of MUI classes (MUI subclasses substitute gdk in our case).
+
+2006-01-07 Ilkka Lehtoranta <ilkleht@isoveli.org>
+
+ * gtk/gtk.h and many more: normalized headers a little so they are more
+   compatible to originals. Moved some stuff to gtk-mui.h which will have
+   non-compatible (i.e. gtk-mui specific) stuff.
+ * gtk-mui.h: new support macros to retrieve standard MUI objects and such.
+   This allows better reorganization of Gtk headers later on.
+ * gtk_box.c, classes/box.c: moved GtkBox and subclass functions to new file.
+   Implemented gtk_box_get_homogeneous(), gtk_box_set_homogeneous(),
+   gtk_box_get_spacing(), gtk_box_set_spacing(), gtk_button_box_get_layout(),
+   gtk_hbutton_box_new(), gtk_vbutton_box_new()
+ * classes/notebook.c, notebook.c: rewrote add child parts, no more crashes.
+ * gtk_dialog.c, classes/dialogwindow.c: Implemented gtk_dialog_add_action_widget(),
+   gtk_dialog_add_button(), gtk_dialog_run(), gtk_dialog_response(),
+   gtk_dialog_set_default_response(), gtk_dialog_set_response_sensitive()
+   Added gtk_dialog_has_separator(), gtk_dialog_set_has_separator()
+ * classes/button.c: Implemented MA_GtkWidget_Activate attribute.
+
+2006-01-06 Ilkka Lehtoranta <ilkleht@isoveli.org>
+
+ * classes/classext.c: Mapped MA_Widget to MUIA_UserData.
+ * classes/dialogwindow.c, gtk_dialog.c: Initial implementation of dialogs.
+ * classes/window.c, classes/classes.h: Implemented GtkWindow class.
+ * gtk_window.c:
+   Implemented gtk_window_is_active(), gtk_window_has_toplevel_focus(),
+   gtk_window_set_focus(), gtk_window_present(), gtk_window_maximize(),
+   gtk_window_fullscreen(), gtk_window_set_role(), gtk_window_set_type_hint(),
+   gtk_window_get_position(), gtk_window_get_size(), gtk_window_get_type_hint(),
+   gtk_window_get_role(), gtk_window_get_title(), gtk_window_move(),
+   gtk_window_resize(), gtk_window_set_icon(), gtk_window_get_icon() and
+   gtk_window_set_modal(), gtk_window_get_modal(), gtk_window_destroy_with_parent()
+   Added gtk_window_activate_focus(), gtk_window_activate_default(),
+   gtk_window_set_default_size(), gtk_window_set_geometry_hints,
+   gtk_window_get_gravity(), gtk_window_iconify(), gtk_window_deiconify(),
+   gtk_window_stick(), gtk_window_unstick(), gtk_window_unmaximize(),
+   gtk_window_unfullscreen(), gtk_window_set_keep_above(),
+   gtk_window_set_keep_below(), gtk_window_skip_taskbar_hint(),
+   gtk_window_set_skip_pager_hint(), gtk_window_set_accept_focus(),
+   gtk_window_set_focus_on_map()
+
+2006-01-05 Ilkka Lehtoranta <ilkleht@isoveli.org>
+
+ * gtk-mui.c: menus are context menus now mostly, but if attached to window widget
+   it becomes normal window menu.
+ * classes/application.c, classes/classes.h: added collection list for lonely objects.
+ * all: redefined mgtk_ObjApp global. For libraries pointer is retrieved from the
+   library base and link libs continue use global pointer. GETGLOBAL is used to
+   circumvent between these two builds (see gtk_globals.h). MorphOS library is now
+   fully re-entrant and it should be easy to write similar for other targets, too.
+ * gtk_window.c: implemented gtk_window_set_decorated()
+ * classes/rootgroup.c: MA_RootGroup_Resizable is gettable now
+
+2006-01-04 Ilkka Lehtoranta <ilkleht@isoveli.org>
+
+ * classes/application.c: New custom class to do global house keeping for GTK
+   applications. Implemented AddTimer/RemTimer methods (according to
+   g_timeout_add() and g_source_remove() specs). Compiler errors are possible.
+   If so, please let me know. Also remember make clean before recompiling,
+   thanks to broken dependencies we have.
+ * classes/classes.h: removed timer tags, added gtkapplication tags.
+ * classes/timer.c: obsolete
+ * gtk_timer.c: shortened considerably and uses gtkapplication now
+ * gtk-mui.c, gtk_init.c, gtk_window.c: now supports more than one window
+ * makefile.objs: from now on add new objects to this file instead to platfrom
+   makefiles. If you need platform specific object files you can add something
+   like "AROSOBJS = aros.o" there... added dependency check system but touched
+   only MorphOS makefile since it doesnt work in all shells. Feel free to adapt
+   for your makefile and say hello to Zapek :)
+
+2005-12-12 Ilkka Lehtoranta <ilkleht@isoveli.org>
+
+ * classes/custom.c: On failure CoerceMethod() was not called causing
+   permanent memory loss. Reorganized for GCC2 compatibility.
+ * classes/timer.c: On failure CoreceMethod() was not called causing
+   permanent memory loss. Reorganized for GCC2 compatibility.
+ * classes/fixed.c: On failure CoreceMethod() was not called causing
+   permanent memory loss. Reorganized for GCC2 compatibility.
+ * classes/button.c: On failure CoreceMethod() was not called causing
+   permanent memory loss. Reorganized for GCC2 compatibility. Removed
+   unnecessary string duplication.
+ * classes/spinbutton.c: On failure CoreceMethod() was not called causing
+   permanent memory loss. Reorganized for GCC2 compatibility.
+ * classes/checkbutton.c: On failure CoreceMethod() was not called causing
+   permanent memory loss. Reorganized for GCC2 compatibility. Removed
+   unnecessary string duplication.
+ * classes/togglebutton.c: On failure CoreceMethod() was not called causing
+   permanent memory loss. Reorganized for GCC2 compatibility.
+ * classes/radiobutton.c: On failure CoreceMethod() was not called causing
+   permanent memory loss. Reorganized for GCC2 compatibility. Removed
+   unnecessary string duplication.
+ * classes/toolbar.c: On failure CoreceMethod() was not called causing
+   permanent memory loss. Reorganized for GCC2 compatibility.
+ * gdk/gdkconfig.h, gdk/gdkmui.c, dgk/gdkmui.h, gdk/gdk_draw.c: Added support
+   for true color rendering. Modify sources (gdkmui.c) and gdkconfig.h
+   according to your OS's capabilities.
+ * gtk-mui.c, gtk_init.c, gtk_style.c, classes/rootgroup.c, gtk/gtk.h: Changed
+   behaviour of default style initialization. The structure is now allocated
+   before initializing gtkmui app but style is updated when window is opened
+   or MUI preferences change.
+
+2005-12-04 Oliver Brunner <gtk-mui "at" oliver-brunner.de>
+
+  * SORRY, made a big mistake, commited files without
+    checking if newer versions have been commited.
+    Tried to fix it manually, please check.
+  * added missing files from my build tree
+  * added examples dir
+
+2005-12-03 Oliver Brunner <gtk-mui "at" oliver-brunner.de>
+
+  * many updates, see this as a first beta version
+
+2005-11-10 Oliver Brunner <gtk-mui "at" oliver-brunner.de>
+
+  * gtk/gtkrange.h: added
+  * gtk_init.c: added changed signal
+  * gtk_scrollbar.c: removed compiler warnings, added range functions
+  * gdk/gdkevents.h: added
+  * gtk/gtksettings.h: added
+  * gtk_style.c: gtk_rc_get_style_by_paths done
+
+2005-11-09 Oliver Brunner <gtk-mui "at" oliver-brunner.de>
+
+  * fixed random crash bug (g_object_unref..)
+  * removed many compiler warnings
+  * gdk/gdkgc.c added
+  * some smaller gtk bounty functions added
+
+2005-11-07 Oliver Brunner <gtk-mui "at" oliver-brunner.de>
+
+  * added gtk_paint functions
+  * added gdk functions
+
+2005-11-03 Oliver Brunner <gtk-mui "at" oliver-brunner.de>
+
+  * implemented GTK styles stubs
+  * gdk/gdkgc.h added
+
+2005-11-02 Oliver Brunner <gtk-mui "at" oliver-brunner.de>
+
+  * fixed all g_new calls (lot of memory useless allocated)
+  * gtk_paint_polygon/gdk_draw_line done
+  * custom widget realize and size_allocate hooks work now
+
+2005-10-28 Oliver Brunner <gtk-mui "at" oliver-brunner.de>
+
+  * custom widget size request works now
+
+2005-10-27 Oliver Brunner <gtk-mui "at" oliver-brunner.de>
+
+  * lot of changes, to implement custom widgets better
+  * added lot of headers for gdk, glib and pango
+  * cleaned up headers (a little bit)
+  * added dummy functions to make dial example compile
+  * gtk_style.c: Stubs for Styles
+  * gtk_grab.c: Stubs for Grabs
+  * gtk_paint.c: Dummy stubs for paint ops
+
+2005-10-20 Oliver Brunner <gtk-mui "at" oliver-brunner.de>
+
+  * classes/button.c: bugfix
+  * old signal code removed, many small fixes
+  * g_signal_connect moved to glib/gsignals.c
+  * glib/gstrfuncs2.c: use those functions with care, they are
+      very fast hacks, that don't work in many cases
+
+2005-10-19 Oliver Brunner <gtk-mui "at" oliver-brunner.de>
+
+  * classes/button.c: Buttons have a MUI custom class now,
+      and emit pressed, released and clicked signals
+  * gtk_button.c: uses custom class now
+  * gtk_init.c: init pressed, released and clicked signals
+
+2005-10-17 Oliver Brunner <gtk-mui "at" oliver-brunner.de>
+
+  * multiple fixes/changes
+  * fixed widget done
+  * first GTK custom widget works (tictactoe)
+  * added custom signals
+  * checkbutton: now has a custom class
+  * toggled signal now done via register_signal/emit_signal (new style)
+  * radiobutton: now has a custom class
+
+2005-09-29 Oliver Brunner <gtk-mui "at" oliver-brunner.de>
+
+  * progressbar: activity mode added
+
+2005-09-22 Oliver Brunner <gtk-mui "at" oliver-brunner.de>
+
+  * progressbar: added set/gettext
+  * timer: added remove timer
+
+2005-09-21 Oliver Brunner <gtk-mui "at" oliver-brunner.de>
+
+  * classes/timer.c: new timer class
+  * classes/progressbar.c: new progress bar class
+  * gtk_timer.c: gtk timer functions added
+  * gtk_progressbar.c: gtk progressbar functions added
+  * Makefile.AROS: new files added
+
+2005-09-19 Oliver Brunner <gtk-mui "at" oliver-brunner.de>
+
+  * gtk_notebook.c: added new functions
+
+2005-09-14 Oliver Brunner <gtk-mui "at" oliver-brunner.de>
+
+  * returned from vacation ;)
+  * classes/spinbutton.c: debugged spinbutton
+  * gtk-mui.c: added padding
+  * classes/notebook.c: added notebook class 
+  * gtk_notebook.c: added Notebook widget
+  * classes/table.c: enabled itix's table class from 2005-08-06
+
+2005-08-19 Oliver Brunner <gtk-mui "at" oliver-brunner.de>
+
+  * all memory allocations are done through g_new now
+  * lots of compiler warnings removed (classes/ still missing)
+  * added glib/gstrfuncs.h
+  * gtk_label.c: text now can be changed through gtk calls
+  * classes/spinbutton.c: now my class works, added to init etc.
+
+2005-08-12 Oliver Brunner <gtk-mui "at" oliver-brunner.de>
+
+  * classes/spinbutton.c: maybe a custom class is better,
+      my first custom class, still buggy of course ;)
+
+2005-08-11 Oliver Brunner <gtk-mui "at" oliver-brunner.de>
+
+  * gtk_globals: added gtk_do_main_quit
+  * gtk_checkbutton.c/gtk_entry.c: moved functions
+  * gtk-mui.c: silenced gcc
+  * gtk_init.c: MUIA_Application_Title is now argv[0]
+
+2005-08-10 Oliver Brunner <gtk-mui "at" oliver-brunner.de>
+
+  * classes/rootgroup.c: fixed NULL pointer access
+  * gtk_checkbutton.c: gtk_entry_set_visibility sets MUIA_String_Secret
+    now. Does not seem to work..
+  * Makefile.AROS: Makefile for AROS, builds library and some examples
+
+2005-08-08 Ilkka Lehtoranta <ilkleht@isoveli.org>
+
+  * classes/classes.h, classes/rootgroup.c, classes/table.c: simplified
+    MUI dispatcher.
+
+2005-08-06 Ilkka Lehtoranta <ilkleht@isoveli.org>
+
+  * src/gtk-mui.c: added mgtk_allocvec() and mgtk_freevec() to get some
+    temporary memory.
+  * classes/table.c: added preliminary table class to replace functionality in
+    gtk_table.c
+  * classes/classext.c: custom class helper functions
+  * src/gtk-mui.c: added mgtk_allocmem() and mgtk_allocmem()
+
+2005-08-05 Ilkka Lehtoranta <ilkleht@isoveli.org>
+
+  * src/gtk_arrow.c: shortened code considerably, added MUIA_CycleChain
+  * src/gtk_#?.c: added MUIA_CycleChain where applicable
+
+2005-08-05 Oliver Bunner <gtk-mui "at" oliver-brunner.de>
+
+  * src/gtk*.c: moved all mui*.h includes to mui.h
+  * src/classes/rootclass.c: DISPATCHER failed to compile under gcc2.9/aos3,
+       replaced with explicit code
+  * src/gtk_init.c: aos3 fixes
+  
+2005-08-04 Ilkka Lehtoranta <ilkleht@isoveli.org>
+
+  * src/gtk_window.c: Toggle resizing gadget properly when window is open
+  * src/gtk_window.c: Added gtk_window_get_resizable()
+  * src/gtk.h: Added an identifier for major MUI class (area, window, family)
+  * src/gtk-mui.c: gtk_widget_show() now supports area class objects
+  * src/gtk-mui.c: added gtk_widget_hide(), gtk_widget_set_sensitive(),
+       gtk_widget_show_all(), gtk_widget_hide_all()
+  * src/classes/rootgroup.c: Takes care of window sizing and resizing feature
+  * src/gtk-mui.c: gtk_widget_destroy() can destroy normal area class objects too
+
